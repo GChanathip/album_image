@@ -29,9 +29,7 @@ class _MyAppState extends State<MyApp> {
             selectionBuilder: (_, selected, index) {
               if (selected) {
                 return Container(
-                  decoration: BoxDecoration(
-                    border: Border.all()
-                  ),
+                  decoration: BoxDecoration(border: Border.all()),
                 );
               }
               return Container();
@@ -42,7 +40,8 @@ class _MyAppState extends State<MyApp> {
               print('Reach max');
             },
             centerTitle: true,
-             albumHeaderTextStyle: const TextStyle(color: Colors.black, fontSize: 14),
+            albumHeaderTextStyle:
+                const TextStyle(color: Colors.black, fontSize: 14),
             albumBackGroundColor: Colors.white,
             appBarHeight: 45,
             itemBackgroundColor: Colors.grey[100]!,
@@ -55,6 +54,7 @@ class _MyAppState extends State<MyApp> {
               color: Colors.black,
             ),
             thumbnailQuality: thumbnailQuality * 3,
+            onDone: (List<AssetEntity> value) {},
           );
         }),
       ),

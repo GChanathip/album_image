@@ -30,6 +30,9 @@ class AppBarAlbum extends StatelessWidget {
   ///appBar actions widgets
   final List<Widget>? appBarActionWidgets;
 
+  ///onPressed Action Widgets.
+  final ValueChanged<List<AssetEntity>> onDone;
+
   final double height;
 
   final bool centerTitle;
@@ -42,15 +45,14 @@ class AppBarAlbum extends StatelessWidget {
       required this.appBarColor,
       required this.albumBackGroundColor,
       required this.albumDividerColor,
-      this.albumHeaderTextStyle =
-          const TextStyle(color: Colors.white, fontSize: 18),
-      this.albumTextStyle = const TextStyle(color: Colors.white, fontSize: 18),
-      this.albumSubTextStyle =
-          const TextStyle(color: Colors.white, fontSize: 14),
+      this.albumHeaderTextStyle = const TextStyle(color: Colors.black, fontSize: 18),
+      this.albumTextStyle = const TextStyle(color: Colors.black, fontSize: 18),
+      this.albumSubTextStyle = const TextStyle(color: Colors.black, fontSize: 14),
       this.height = 65,
       this.centerTitle = true,
       this.appBarLeadingWidget,
       this.appBarActionWidgets,
+      required this.onDone,
       this.emptyAlbumThumbnail})
       : super(key: key);
 
@@ -63,7 +65,7 @@ class AppBarAlbum extends StatelessWidget {
         leading: appBarLeadingWidget,
         toolbarHeight: height,
         backgroundColor: appBarColor,
-        actions: appBarActionWidgets,
+        actions: [_buildActionButton(context)],
         title: _buildAlbumButton(context, ValueNotifier(false)),
         centerTitle: centerTitle,
       ),
@@ -125,11 +127,48 @@ class AppBarAlbum extends StatelessWidget {
     }
   }
 
+  Widget _buildActionButton(BuildContext context) {
+    return ValueListenableBuilder(
+        valueListenable: provider.pickedNotifier,
+        builder: (_, value, __) => TextButton(
+              key: const Key('button'),
+              onPressed: () {
+                Navigator.pop(context, provider.picked);
+              },
+
+              // provider.picked.isNotEmpty ? () {
+              //   onDone(provider.picked);
+              //   Navigator.pop(context);
+              // } : () => Navigator.pop(context),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                // shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.done_rounded,
+                    color: Colors.black,
+                  ),
+                  Text(
+                    ' (${provider.picked.length})',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ));
+  }
+
   void onSelectAlbum(BuildContext context) {
     showModalBottomSheet(
         context: context,
-        constraints:
-            BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 2.5),
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 2.5),
         enableDrag: true,
         backgroundColor: Colors.transparent,
         builder: (_) {
@@ -196,16 +235,14 @@ class _ChangePathWidgetState extends State<ChangePathWidget> {
   void initState() {
     super.initState();
     currentIndex = provider.pathList.indexOf(provider.currentPath!);
-    controller =
-        ScrollController(initialScrollOffset: widget.itemHeight * currentIndex);
+    controller = ScrollController(initialScrollOffset: widget.itemHeight * currentIndex);
   }
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: widget.albumBackGroundColor,
-      borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+      borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
       child: MediaQuery.removePadding(
         removeTop: true,
         context: context,
@@ -215,8 +252,7 @@ class _ChangePathWidgetState extends State<ChangePathWidget> {
               width: 24,
               height: 4,
               margin: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: Colors.grey, borderRadius: BorderRadius.circular(18)),
+              decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(18)),
             ),
             Expanded(
               child: ListView.separated(
@@ -276,8 +312,7 @@ class _ChangePathWidgetState extends State<ChangePathWidget> {
                     Text(
                       item.name,
                       overflow: TextOverflow.ellipsis,
-                      style: widget.albumTextStyle ??
-                          const TextStyle(color: Colors.white, fontSize: 18),
+                      style: widget.albumTextStyle ?? const TextStyle(color: Colors.white, fontSize: 18),
                     ),
                     const SizedBox(
                       height: 4,
@@ -285,8 +320,7 @@ class _ChangePathWidgetState extends State<ChangePathWidget> {
                     Text(
                       '${item.assetCount}',
                       overflow: TextOverflow.ellipsis,
-                      style: widget.albumSubTextStyle ??
-                          const TextStyle(color: Colors.white, fontSize: 14),
+                      style: widget.albumSubTextStyle ?? const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ],
                 ),
@@ -295,7 +329,7 @@ class _ChangePathWidgetState extends State<ChangePathWidget> {
             AnimatedOpacity(
               opacity: currentIndex == index ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 200),
-              child: Icon(Icons.check),
+              child: const Icon(Icons.check),
             )
           ],
         ),

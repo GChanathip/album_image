@@ -14,7 +14,7 @@ class AlbumImagePicker extends StatefulWidget {
   final int maxSelection;
 
   /// return all selected images
-  final Function(List<AssetEntity>) onSelected;
+  final Function(List<AssetEntity>)? onSelected;
 
   /// preSelected images
   final List<AssetEntity>? selected;
@@ -90,14 +90,18 @@ class AlbumImagePicker extends StatefulWidget {
   /// album divider color
   final Color albumDividerColor;
 
+  ///
+  final ValueChanged<List<AssetEntity>> onDone;
+
   final bool centerTitle;
 
   final Widget? emptyAlbumThumbnail;
 
+
   const AlbumImagePicker(
       {Key? key,
       this.maxSelection = 1,
-      required this.onSelected,
+      this.onSelected,
       this.selected,
       this.type = AlbumType.all,
       this.thumbnailBoxFix = BoxFit.cover,
@@ -124,6 +128,7 @@ class AlbumImagePicker extends StatefulWidget {
       this.scrollPhysics,
       this.scrollController,
       this.onSelectedMax,
+      required this.onDone,
       this.emptyAlbumThumbnail})
       : super(key: key);
 
@@ -163,9 +168,9 @@ class _AlbumImagePickerState extends State<AlbumImagePicker>
 
   void _getPermission() async {
     var result = await PhotoManager.requestPermissionExtend(
-        requestOption: const PermisstionRequestOption(
+        requestOption: const PermissionRequestOption(
             iosAccessLevel: IosAccessLevel.readWrite));
-    if (result.isAuth) {
+    if (result == PermissionState.authorized || result == PermissionState.limited) {
       PhotoManager.startChangeNotify();
       PhotoManager.addChangeCallback((value) {
         _refreshPathList();
@@ -221,6 +226,7 @@ class _AlbumImagePickerState extends State<AlbumImagePicker>
           height: widget.appBarHeight,
           appBarLeadingWidget: widget.closeWidget,
           appBarActionWidgets: widget.appBarActionWidgets,
+          onDone: widget.onDone,
           centerTitle: widget.centerTitle,
           emptyAlbumThumbnail: widget.emptyAlbumThumbnail,
         ),
@@ -248,7 +254,7 @@ class _AlbumImagePickerState extends State<AlbumImagePicker>
                         widget.selectedItemBackgroundColor,
                     onAssetItemClick: (ctx, asset, index) async {
                       provider.pickEntity(asset);
-                      widget.onSelected(provider.picked);
+                      // widget.onSelected(provider.picked);
                     },
                   )
                 : Container(),
